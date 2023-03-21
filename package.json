@@ -1,0 +1,21 @@
+{
+  "name": "threejs-gooey-image-hover-effects-codrops",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^4.2.0"
+  },
+  "dependencies": {
+    "glsl-noise": "^0.0.0",
+    "glslify": "^7.1.1",
+    "gsap": "^3.11.5",
+    "three": "^0.150.1",
+    "vite-plugin-glslify": "^2.0.1"
+  }
+}
