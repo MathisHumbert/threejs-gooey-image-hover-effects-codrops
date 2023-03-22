@@ -4,25 +4,198 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <link rel="stylesheet" href="./css/style.css" />
+    <link rel="stylesheet" href="https://use.typekit.net/lma7zwj.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gooey Hover Effects on Images with Three.js | Codrops</title>
   </head>
   <body>
-    <section class="container">
-      <article class="tile">
-        <figure class="tile__figure">
-          <img
-            class="tile__image"
-            src="/tiles/woods/base.jpg"
-            alt="wood-base"
-            data-src="/tiles/woods/base.jpg"
-            data-hover="/tiles/woods/hover.jpg"
-            width="400"
-          />
-        </figure>
-      </article>
-    </section>
-    <canvas id="stage"></canvas>
+    <main>
+      <div class="frame">
+        <div class="frame__links">
+          <a
+            href="https://github.com/MathisHumbert/threejs-gooey-image-hover-effects-codrops"
+            target="_blank"
+            >Github</a
+          >
+          <a
+            href="https://preview-to-full-content-codrops.vercel.app/"
+            target="_blank"
+            >Previous Demo</a
+          >
+          <a href="https://tympanus.net/codrops/?p=43947" target="_blank"
+            >Article</a
+          >
+        </div>
+        <div class="frame__demo">Gooey hover effects</div>
+      </div>
+      <h1 class="page__title">
+        What's your next
+        <br />
+        destination?
+      </h1>
+      <section class="content">
+        <div class="slideshow">
+          <div class="slideshow__container">
+            <ul class="slideshow__list">
+              <li class="slideshow__list__element">
+                <article class="tile">
+                  <a href="#">
+                    <figure class="tile__figure">
+                      <img
+                        src="/tiles/woods/base.jpg"
+                        alt="wood-base"
+                        data-src="/tiles/woods/base.jpg"
+                        data-hover="/tiles/woods/hover.jpg"
+                        class="tile__image"
+                      />
+                    </figure>
+                    <div class="tile__content">
+                      <h2 class="tile__title">
+                        <span>
+                          <span>woods &</span>
+                        </span>
+                        <span>
+                          <span>forests</span>
+                        </span>
+                      </h2>
+                      <p class="tile__cta">
+                        <span>
+                          <span>See more</span>
+                        </span>
+                      </p>
+                    </div>
+                  </a>
+                </article>
+              </li>
+              <li class="slideshow__list__element">
+                <article class="tile">
+                  <a href="#">
+                    <figure class="tile__figure">
+                      <img
+                        src="/tiles/rocks/base.jpg"
+                        alt="wood-base"
+                        data-src="/tiles/rocks/base.jpg"
+                        data-hover="/tiles/rocks/hover.jpg"
+                        class="tile__image"
+                      />
+                    </figure>
+                    <div class="tile__content">
+                      <h2 class="tile__title">
+                        <span>
+                          <span>rocks &</span>
+                        </span>
+                        <span>
+                          <span>mountains</span>
+                        </span>
+                      </h2>
+                      <p class="tile__cta">
+                        <span>
+                          <span>See more</span>
+                        </span>
+                      </p>
+                    </div>
+                  </a>
+                </article>
+              </li>
+              <li class="slideshow__list__element">
+                <article class="tile">
+                  <a href="#">
+                    <figure class="tile__figure">
+                      <img
+                        src="/tiles/cities/base.jpg"
+                        alt="wood-base"
+                        data-src="/tiles/cities/base.jpg"
+                        data-hover="/tiles/cities/hover.jpg"
+                        class="tile__image"
+                      />
+                    </figure>
+                    <div class="tile__content">
+                      <h2 class="tile__title">
+                        <span>
+                          <span>cities &</span>
+                        </span>
+                        <span>
+                          <span>skylines</span>
+                        </span>
+                      </h2>
+                      <p class="tile__cta">
+                        <span>
+                          <span>See more</span>
+                        </span>
+                      </p>
+                    </div>
+                  </a>
+                </article>
+              </li>
+              <li class="slideshow__list__element">
+                <article class="tile">
+                  <a href="#">
+                    <figure class="tile__figure">
+                      <img
+                        src="/tiles/deserts/base.jpg"
+                        alt="wood-base"
+                        data-src="/tiles/deserts/base.jpg"
+                        data-hover="/tiles/deserts/hover.jpg"
+                        class="tile__image"
+                      />
+                    </figure>
+                    <div class="tile__content">
+                      <h2 class="tile__title">
+                        <span>
+                          <span>sand &</span>
+                        </span>
+                        <span>
+                          <span>deserts</span>
+                        </span>
+                      </h2>
+                      <p class="tile__cta">
+                        <span>
+                          <span>See more</span>
+                        </span>
+                      </p>
+                    </div>
+                  </a>
+                </article>
+              </li>
+              <li class="slideshow__list__element">
+                <article class="tile">
+                  <a href="#">
+                    <figure class="tile__figure">
+                      <img
+                        src="/tiles/snow/base.jpg"
+                        alt="wood-base"
+                        data-src="/tiles/snow/base.jpg"
+                        data-hover="/tiles/snow/hover.jpg"
+                        class="tile__image"
+                      />
+                    </figure>
+                    <div class="tile__content">
+                      <h2 class="tile__title">
+                        <span>
+                          <span>snow &</span>
+                        </span>
+                        <span>
+                          <span>mountains</span>
+                        </span>
+                      </h2>
+                      <p class="tile__cta">
+                        <span>
+                          <span>See more</span>
+                        </span>
+                      </p>
+                    </div>
+                  </a>
+                </article>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="slideshow__progress">
+          <span class="slideshow__progress--bar"></span>
+        </div>
+      </section>
+    </main>
+    <canvas id="webgl"></canvas>
   </body>
   <script type="module" src="./js/app.js"></script>
 </html>

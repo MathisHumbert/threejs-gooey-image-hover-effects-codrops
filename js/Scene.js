@@ -1,13 +1,27 @@
 import * as THREE from 'three';
+import Lenis from '@studio-freight/lenis';
+import gsap from 'gsap';
+import ScrollTrigger from 'gsap/ScrollTrigger';
 
-import Figure from './Figure';
+import Tile from './Tile';
+
+gsap.registerPlugin(ScrollTrigger);
 
 export default class Scene {
-  constructor() {
-    this.container = document.getElementById('stage');
+  constructor(container) {
+    this.container = container;
+    [...this.tilesDom] = document.querySelectorAll('.slideshow__list__element');
 
+    this.scroll = 0;
+
+    this.start();
+  }
+
+  start() {
     // Scene
     this.scene = new THREE.Scene();
+    this.width = window.innerWidth;
+    this.height = window.innerHeight;
 
     // Renderer
     this.renderer = new THREE.WebGLRenderer({
@@ -16,15 +30,19 @@ export default class Scene {
       alpha: true,
     });
 
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.setSize(this.width, this.height);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
     // Figure
-    this.figure = new Figure(this.scene);
+    // this.figure = new Figure(this.scene);
+    this.tiles = this.tilesDom.map((el, i) => new Tile(el, this, i));
 
     this.initLights();
     this.initCamera();
-    // this.addObject();
+    this.initScroll();
+    this.initScrollAnimation();
+    this.onScroll();
+    this.onResize();
     this.update();
   }
 
@@ -35,33 +53,92 @@ export default class Scene {
 
   initCamera() {
     const perspective = 800;
-    const fov =
-      2 * Math.atan(window.innerHeight / 2 / perspective) * (180 / Math.PI);
+    const fov = 2 * Math.atan(this.height / 2 / perspective) * (180 / Math.PI);
 
     this.camera = new THREE.PerspectiveCamera(
       fov,
-      window.innerWidth / window.innerHeight,
+      this.width / this.height,
       1,
       1000
     );
     this.camera.position.z = perspective;
   }
 
-  addObject() {
-    const material = new THREE.MeshBasicMaterial({
-      color: 'red',
-      wireframe: true,
+  initScroll() {
+    const lenis = new Lenis({
+      lerp: 0.05,
+      duration: 2,
     });
-    const geometry = new THREE.PlaneGeometry(200, 200, 10, 10);
-    const mesh = new THREE.Mesh(geometry, material);
 
-    this.scene.add(mesh);
+    this.lenis = lenis;
+
+    function raf(time) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+
+    requestAnimationFrame(raf);
+  }
+
+  initScrollAnimation() {
+    const container = document.querySelector('.slideshow__container');
+    const pageTile = document.querySelector('.page__title');
+    const progressBar = document.querySelector('.slideshow__progress--bar');
+
+    this.hozizontalScrollX = this.tilesDom.reduce((acc, curr) => {
+      return acc + curr.offsetWidth;
+    }, 0);
+
+    const tl = gsap.timeline({
+      scrollTrigger: { trigger: container, pin: true, scrub: true },
+    });
+
+    tl.to(container, {
+      ease: 'none',
+      x: () => -(this.hozizontalScrollX + this.width * 0.1),
+    })
+      .to(pageTile, { x: -100 }, 0)
+      .to(progressBar, { x: 0 }, 0);
+  }
+
+  onResize() {
+    window.addEventListener('resize', () => {
+      this.width = window.innerWidth;
+      this.height = window.innerHeight;
+
+      this.camera.aspect = this.width / this.height;
+      this.camera.updateProjectionMatrix();
+
+      this.renderer.setSize(this.width, this.height);
+      this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      this.hozizontalScrollX = this.tilesDom.reduce((acc, curr) => {
+        return acc + curr.offsetWidth;
+      }, 0);
+
+      for (const tile of this.tiles) {
+        tile.onResize();
+      }
+    });
+  }
+
+  onScroll() {
+    this.lenis.on('scroll', (e) => {
+      ScrollTrigger.update();
+      this.scroll = e.scroll;
+
+      for (const tile of this.tiles) {
+        tile.onScroll();
+      }
+    });
   }
 
   update() {
     this.renderer.render(this.scene, this.camera);
 
-    this.figure.update();
+    for (const tile of this.tiles) {
+      tile.update(this.scroll);
+    }
 
     requestAnimationFrame(this.update.bind(this));
   }

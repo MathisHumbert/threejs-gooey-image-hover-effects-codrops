@@ -127,6 +127,11 @@
     estree-walker "^2.0.1"
     picomatch "^2.2.2"
 
+"@studio-freight/lenis@^1.0.4":
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/@studio-freight/lenis/-/lenis-1.0.4.tgz#fbac7a6b7ee0944e6c51d3a73dc718d21385d616"
+  integrity sha512-JGe43cOqipVn6MsG7jqOEeqwwQ/c5RSFl0NzkQ5vEoIs9U0U9KVslXLkEaQpsoYfhDq6Mqg2UMwwSDaBgFj8Sg==
+
 acorn@^7.1.1:
   version "7.4.1"
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-7.4.1.tgz#feaed255973d2e77555b83dbc08851a6c63520fa"
