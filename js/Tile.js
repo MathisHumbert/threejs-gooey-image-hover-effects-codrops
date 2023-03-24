@@ -2,7 +2,8 @@ import * as THREE from 'three';
 import gsap from 'gsap';
 
 import vertex from '../glsl/vertex.glsl';
-import fragment from '../glsl/fragment.glsl';
+import gooeyShader from '../glsl/gooeyShader.glsl';
+import waveShader from '../glsl/waveShader.glsl';
 
 export default class Tile {
   constructor(el, scene, tileIndex) {
@@ -21,11 +22,63 @@ export default class Tile {
     this.offset = new THREE.Vector2(0, 0);
     this.mouse = new THREE.Vector2(0, 0);
     this.hover = 0;
-    this.scroll = 0;
+    this.delta = 0;
 
     this.initTile();
     this.onMouseMove();
     this.onHover();
+  }
+
+  initTile() {
+    this.geometry = new THREE.PlaneGeometry(1, 1, 1, 1);
+
+    this.material = new THREE.RawShaderMaterial({
+      uniforms: {
+        uImage: { value: this.image },
+        uImageHover: { value: this.hoverImage },
+        uMouse: { value: this.mouse },
+        uTime: { value: 0 },
+        uHover: { value: this.hover },
+        uRes: {
+          value: new THREE.Vector2(window.innerWidth, window.innerHeight),
+        },
+      },
+      defines: {
+        PR: window.devicePixelRatio.toFixed(1),
+      },
+      vertexShader: vertex,
+      fragmentShader: waveShader,
+    });
+
+    // this.material = new THREE.MeshBasicMaterial({
+    //   color: 'red',
+    //   wireframe: true,
+    // });
+
+    this.mesh = new THREE.Mesh(this.geometry, this.material);
+
+    this.setTile();
+
+    this.scene.add(this.mesh);
+  }
+
+  setPosition() {
+    this.getSizes();
+
+    this.mesh.position.x = this.offset.x;
+
+    gsap.to(this.mesh.scale, {
+      x: this.sizes.x - this.delta,
+      y: this.sizes.y - this.delta,
+      duration: 0.3,
+    });
+  }
+
+  setTile() {
+    this.getSizes();
+
+    this.mesh.scale.set(this.sizes.x, this.sizes.y, 0);
+    this.mesh.position.set(this.offset.x, this.offset.y, 1);
   }
 
   getSizes() {
@@ -38,52 +91,14 @@ export default class Tile {
     );
   }
 
-  initTile() {
-    this.geometry = new THREE.PlaneGeometry(1, 1, 1, 1);
+  onScroll({ scroll, previousScroll }) {
+    this.delta = Math.abs(scroll - previousScroll);
 
-    this.material = new THREE.RawShaderMaterial({
-      uniforms: {
-        uImage: { value: this.image },
-        uImageHover: { value: this.hoverImage },
-        uMouse: { value: this.mouse },
-        uTime: { value: 0 },
-        uHover: { value: 0 },
-        uRes: {
-          value: new THREE.Vector2(window.innerWidth, window.innerHeight),
-        },
-      },
-      defines: {
-        PR: window.devicePixelRatio.toFixed(1),
-      },
-      vertexShader: vertex,
-      fragmentShader: fragment,
-    });
-
-    // this.material = new THREE.MeshBasicMaterial({
-    //   color: 'red',
-    //   wireframe: true,
-    // });
-
-    this.mesh = new THREE.Mesh(this.geometry, this.material);
-
-    this.setPosition();
-  }
-
-  setPosition() {
-    this.getSizes();
-
-    this.mesh.scale.set(this.sizes.x, this.sizes.y, 0);
-    this.mesh.position.set(this.offset.x, this.offset.y, 1);
-
-    this.scene.add(this.mesh);
-  }
-
-  onScroll() {
     this.setPosition();
   }
 
   onResize() {
-    this.setPosition();
+    this.setTile();
   }
 
   onMouseMove() {
@@ -98,6 +113,7 @@ export default class Tile {
 
   onHover() {
     this.domLink.addEventListener('mouseenter', () => {
+      this.hover = 1;
       document.documentElement.style.setProperty(
         '--color-bg',
         `var(--color-bg${this.tileIndex + 1})`
@@ -111,14 +127,14 @@ export default class Tile {
     });
 
     this.domLink.addEventListener('mouseleave', () => {
+      this.hover = 0;
       gsap.to(this.material.uniforms.uHover, { value: 0 });
     });
   }
 
-  update(scroll) {
-    // Update scroll
-    this.scroll = scroll;
-
-    // this.material.uniforms.uTime.value += 0.01;
+  update() {
+    if (this.hover) {
+      this.material.uniforms.uTime.value += 0.01;
+    }
   }
 }

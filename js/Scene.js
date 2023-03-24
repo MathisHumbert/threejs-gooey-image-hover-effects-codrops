@@ -22,6 +22,8 @@ export default class Scene {
     this.scene = new THREE.Scene();
     this.width = window.innerWidth;
     this.height = window.innerHeight;
+    this.scroll = 0;
+    this.previousScroll = 0;
 
     // Renderer
     this.renderer = new THREE.WebGLRenderer({
@@ -33,8 +35,6 @@ export default class Scene {
     this.renderer.setSize(this.width, this.height);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-    // Figure
-    // this.figure = new Figure(this.scene);
     this.tiles = this.tilesDom.map((el, i) => new Tile(el, this, i));
 
     this.initLights();
@@ -66,8 +66,8 @@ export default class Scene {
 
   initScroll() {
     const lenis = new Lenis({
-      lerp: 0.05,
-      duration: 2,
+      // lerp: 0.05,
+      // duration: 2,
     });
 
     this.lenis = lenis;
@@ -128,8 +128,13 @@ export default class Scene {
       this.scroll = e.scroll;
 
       for (const tile of this.tiles) {
-        tile.onScroll();
+        tile.onScroll({
+          scroll: this.scroll,
+          previousScroll: this.previousScroll,
+        });
       }
+
+      this.previousScroll = this.scroll;
     });
   }
 
@@ -137,7 +142,7 @@ export default class Scene {
     this.renderer.render(this.scene, this.camera);
 
     for (const tile of this.tiles) {
-      tile.update(this.scroll);
+      tile.update();
     }
 
     requestAnimationFrame(this.update.bind(this));
