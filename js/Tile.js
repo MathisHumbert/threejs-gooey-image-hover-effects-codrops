@@ -4,6 +4,7 @@ import gsap from 'gsap';
 import vertex from '../glsl/vertex.glsl';
 import gooeyShader from '../glsl/gooeyShader.glsl';
 import waveShader from '../glsl/waveShader.glsl';
+import shader from '../glsl/shader.glsl';
 
 export default class Tile {
   constructor(el, scene, tileIndex) {
@@ -14,6 +15,9 @@ export default class Tile {
     this.domImage = this.elDom.querySelector('.tile__image');
     this.domLink = this.elDom.querySelector('a');
     this.loader = new THREE.TextureLoader();
+    this.loader.wrapS = THREE.ClampToEdgeWrapping;
+    this.loader.wrapT = THREE.ClampToEdgeWrapping;
+    this.loader.minFilter = THREE.LinearFilter;
 
     this.image = this.loader.load(this.domImage.dataset.src);
     this.hoverImage = this.loader.load(this.domImage.dataset.hover);
@@ -47,7 +51,8 @@ export default class Tile {
         PR: window.devicePixelRatio.toFixed(1),
       },
       vertexShader: vertex,
-      fragmentShader: waveShader,
+      fragmentShader: shader,
+      transparent: true,
     });
 
     // this.material = new THREE.MeshBasicMaterial({
@@ -99,6 +104,11 @@ export default class Tile {
 
   onResize() {
     this.setTile();
+
+    this.material.uniforms.uRes.value = new THREE.Vector2(
+      window.innerWidth,
+      window.innerHeight
+    );
   }
 
   onMouseMove() {
@@ -133,8 +143,8 @@ export default class Tile {
   }
 
   update() {
-    if (this.hover) {
-      this.material.uniforms.uTime.value += 0.01;
-    }
+    // if (this.hover) {
+    this.material.uniforms.uTime.value += 0.01;
+    // }
   }
 }
