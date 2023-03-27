@@ -24,24 +24,28 @@ void main(){
 	vec2 mouse = uMouse * -0.5;
 	mouse.y *= uRes.y / uRes.x;
 
+ // circle 
   vec2 circlePos = (st + mouse) * 5.;
 	float circle = createCircle(circlePos, 0.1 * uHover, 5.) * 1.5;
 
+  // custom noise effect
   float offx = vUv.x + sin(vUv.y + uTime * .1);
   float offy = vUv.y - uTime * 0.1 - cos(uTime * .001) * .01;
 
   float noiseCircle = snoise3(vec3(offx, offy, uTime * 0.1) * 8.) * uHover;
   float noiseHover = snoise3(vec3(offx, offy, uTime * 0.1) * 2.) * 0.03;
 
-  vec2 newUv = vUv;
-  newUv -= vec2(0.5);
-  newUv *= 1. - uHover * 0.2;
-  newUv += vec2(0.5);
-
-  vec4 image = texture2D(uImageHover, vUv);
-  vec4 imageDistorted = texture2D(uImage, newUv + vec2(noiseHover) * uHover);
-
   float finalMask = smoothstep(0.99, 1., pow(circle, 2.) * 4. + noiseCircle);
+
+	// custom uv for img 
+  vec2 imageUv = vUv;
+  imageUv -= vec2(0.5);
+  imageUv *= 1. - uHover * 0.2;
+  imageUv += vec2(0.5);
+
+	//  img 
+  vec4 image = texture2D(uImageHover, vUv);
+  vec4 imageDistorted = texture2D(uImage, imageUv + vec2(noiseHover) * uHover);
   vec4 finalImage = mix(imageDistorted, image, finalMask);
 
   gl_FragColor = finalImage;

@@ -1,6 +1,5 @@
 precision mediump float;
 
-#pragma glslify: snoise2 = require(glsl-noise/simplex/2d)
 #pragma glslify: snoise3 = require(glsl-noise/simplex/3d)
 
 uniform sampler2D uImage;
@@ -25,14 +24,16 @@ void main(){
 	vec2 mouse = uMouse * -0.5;
 	mouse.y *= uRes.y / uRes.x;
 
+	// rounded corner shape
 	float grd = 0.1 * uHover;
-
   float sqr = 100. * (smoothstep(0., grd, vUv.x) - smoothstep(1. - grd, 1., vUv.x)) * (smoothstep(0., grd, vUv.y) - smoothstep(1. - grd, 1., vUv.y)) -10.;
 
+	// circle 
   vec2 circlePos = st + mouse;
-	float circle = createCircle(circlePos, 0.01 * uHover, 2.);
+	float circle = createCircle(circlePos, 0.005 * uHover, 2.);
 	float sqrCircle = createCircle(circlePos, .04 * uHover, 2.) * 50.;
 
+	// custom noise effect
 	float offx = vUv.x + sin(vUv.y + uTime * .1);
   float offy = vUv.y - uTime * 0.1 - cos(uTime * .001) * .01;
 
@@ -41,6 +42,9 @@ void main(){
 
   circle = smoothstep(.1, .8, circle * 5. + noiseCircle * 3. - 1.);
 
+	float finalMask = smoothstep(.0, 0.1, sqr - sqrCircle);
+
+	// custom uv for img 
 	vec2 imageUv = vUv;
 	imageUv -= vec2(0.5);
 	imageUv *= 1. - uHover * 0.2;
@@ -54,13 +58,12 @@ void main(){
 
 	vec4 color = vec4(0.0314, 0.0314, 0.2235, 1.);
 
+	// img 
 	vec4 image = texture2D(uImage, imageUv);
 	vec4 imageHover = texture2D(uImageHover, imageHoverUv + vec2(noiseHover) * uHover);
 	imageHover = mix(imageHover, imageHover * color, 0.8);
 
 	vec4 finalImage = mix(image, imageHover, clamp(circle, 0., 1.));
-
-	float finalMask = smoothstep(.0, 0.1, sqr - sqrCircle);
 
 	gl_FragColor = vec4(finalImage.rgb, finalMask);
 }

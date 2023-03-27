@@ -1,26 +1,23 @@
 import * as THREE from 'three';
 import gsap from 'gsap';
 
+import testShader from '../glsl/shader.glsl';
 import vertex from '../glsl/vertex.glsl';
-import gooeyShader from '../glsl/gooeyShader.glsl';
-import waveShader from '../glsl/waveShader.glsl';
-import shader from '../glsl/shader.glsl';
 
 export default class Tile {
-  constructor(el, scene, tileIndex) {
+  constructor(el, scene, tileIndex, shader) {
     this.elDom = el;
     this.scene = scene.scene;
     this.tileIndex = tileIndex;
+    this.shader = shader;
 
     this.domImage = this.elDom.querySelector('.tile__image');
     this.domLink = this.elDom.querySelector('a');
     this.loader = new THREE.TextureLoader();
-    this.loader.wrapS = THREE.ClampToEdgeWrapping;
-    this.loader.wrapT = THREE.ClampToEdgeWrapping;
-    this.loader.minFilter = THREE.LinearFilter;
 
     this.image = this.loader.load(this.domImage.dataset.src);
     this.hoverImage = this.loader.load(this.domImage.dataset.hover);
+    this.shape = this.loader.load('shape.jpg');
 
     this.sizes = new THREE.Vector2(0, 0);
     this.offset = new THREE.Vector2(0, 0);
@@ -46,12 +43,15 @@ export default class Tile {
         uRes: {
           value: new THREE.Vector2(window.innerWidth, window.innerHeight),
         },
+        uShape: {
+          value: this.shape,
+        },
       },
       defines: {
         PR: window.devicePixelRatio.toFixed(1),
       },
       vertexShader: vertex,
-      fragmentShader: shader,
+      fragmentShader: this.shader,
       transparent: true,
     });
 

@@ -5,7 +5,21 @@ import ScrollTrigger from 'gsap/ScrollTrigger';
 
 import Tile from './Tile';
 
+import gooeyShader from '../glsl/gooeyShader.glsl';
+import trippyShader from '../glsl/trippyShader.glsl';
+import revealShader from '../glsl/revealShader.glsl';
+import waveShader from '../glsl/waveShader.glsl';
+import shapeShader from '../glsl/shapeShader.glsl';
+
 gsap.registerPlugin(ScrollTrigger);
+
+const shaders = [
+  trippyShader,
+  shapeShader,
+  gooeyShader,
+  waveShader,
+  revealShader,
+];
 
 export default class Scene {
   constructor(container) {
@@ -35,7 +49,9 @@ export default class Scene {
     this.renderer.setSize(this.width, this.height);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-    this.tiles = this.tilesDom.map((el, i) => new Tile(el, this, i));
+    this.tiles = this.tilesDom.map(
+      (el, i) => new Tile(el, this, i, shaders[i])
+    );
 
     this.initLights();
     this.initCamera();

@@ -40,6 +40,8 @@ void main(){
 	float offy = vUv.y + uTime * 0.1 * cos(uTime * 0.1);
 	float noise = snoise3(vec3(offx, offy, uTime * 0.005) * 2.5);
 
+  float finalMask = 1. - smoothstep(0.99, 1., pow(shapeX, 3.) * 4. + noise);
+
 	// custom uv for img 
 	vec2 imageUv = vUv;
 	imageUv -= vec2(0.5);
@@ -54,8 +56,6 @@ void main(){
 	// img
 	vec4 image = texture2D(uImage, imageUv + mouse * 0.05 * uHover);
 	vec4 imageHover = texture2D(uImageHover, imageHoverUv  + mouse * 0.5 * uHover);
-
-  float finalMask = 1. - smoothstep(0.99, 1., pow(shapeX, 2.) * 4. + noise);
 
 	vec4 finalImage = mix(image, imageHover, finalMask);
 
