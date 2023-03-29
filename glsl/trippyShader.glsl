@@ -8,7 +8,8 @@ uniform vec2 uMouse;
 uniform float uTime;
 uniform vec2 uRes;
 uniform float uHover;
-
+uniform float uAlpha;
+uniform float uZoomed;
 varying vec2 vUv;
 
 float createCircle(in vec2 _st, in float _radius, in float blurriness){
@@ -46,7 +47,7 @@ void main(){
 	//  img 
   vec4 image = texture2D(uImageHover, vUv);
   vec4 imageDistorted = texture2D(uImage, imageUv + vec2(noiseHover) * uHover);
-  vec4 finalImage = mix(imageDistorted, image, finalMask);
+  vec4 finalImage = mix(imageDistorted, image, clamp(finalMask + uZoomed, 0., 1.));
 
-  gl_FragColor = finalImage;
+	gl_FragColor = vec4(finalImage.rgb, uAlpha);
 }

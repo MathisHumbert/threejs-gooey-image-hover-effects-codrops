@@ -8,6 +8,7 @@ uniform vec2 uMouse;
 uniform float uTime;
 uniform vec2 uRes;
 uniform float uHover;
+uniform float uAlpha;
 
 varying vec2 vUv;
 
@@ -62,5 +63,5 @@ void main(){
 
 	vec4 finalImage = mix(image, imageHover, pct);
 
-	gl_FragColor = vec4(finalImage.rgb, finalMask);
+	gl_FragColor = vec4(finalImage.rgb, uAlpha * finalMask);
 }

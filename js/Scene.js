@@ -10,6 +10,7 @@ import trippyShader from '../glsl/trippyShader.glsl';
 import revealShader from '../glsl/revealShader.glsl';
 import waveShader from '../glsl/waveShader.glsl';
 import shapeShader from '../glsl/shapeShader.glsl';
+import Detail from './Detail';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -38,6 +39,7 @@ export default class Scene {
     this.height = window.innerHeight;
     this.scroll = 0;
     this.previousScroll = 0;
+    this.tilesMaterial = [];
 
     // Renderer
     this.renderer = new THREE.WebGLRenderer({
@@ -49,27 +51,21 @@ export default class Scene {
     this.renderer.setSize(this.width, this.height);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-    this.tiles = this.tilesDom.map(
-      (el, i) => new Tile(el, this, i, shaders[i])
-    );
+    this.detail = new Detail(this);
 
-    this.initLights();
     this.initCamera();
     this.initScroll();
+    this.initTiles();
     this.initScrollAnimation();
     this.onScroll();
     this.onResize();
     this.update();
   }
 
-  initLights() {
-    const ambientLight = new THREE.AmbientLight('0xffffff', 2);
-    this.scene.add(ambientLight);
-  }
-
   initCamera() {
-    const perspective = 800;
-    const fov = 2 * Math.atan(this.height / 2 / perspective) * (180 / Math.PI);
+    this.perspective = 800;
+    const fov =
+      2 * Math.atan(this.height / 2 / this.perspective) * (180 / Math.PI);
 
     this.camera = new THREE.PerspectiveCamera(
       fov,
@@ -77,7 +73,7 @@ export default class Scene {
       1,
       1000
     );
-    this.camera.position.z = perspective;
+    this.camera.position.z = this.perspective;
   }
 
   initScroll() {
@@ -96,22 +92,41 @@ export default class Scene {
     requestAnimationFrame(raf);
   }
 
+  initTiles() {
+    this.tiles = this.tilesDom.map(
+      (el, i) => new Tile(el, this, i, shaders[i])
+    );
+  }
+
+  // hideTiles(index){
+  //   for (const tile of this.tiles) {
+  //     tile.hide();
+  //   }  }
+
   initScrollAnimation() {
     const container = document.querySelector('.slideshow__container');
     const pageTile = document.querySelector('.page__title');
     const progressBar = document.querySelector('.slideshow__progress--bar');
 
-    this.hozizontalScrollX = this.tilesDom.reduce((acc, curr) => {
-      return acc + curr.offsetWidth;
-    }, 0);
+    this.hozizontalScrollX = this.tilesDom.reduce(
+      (acc, curr) => {
+        return acc + curr.offsetWidth;
+      },
+      this.width > 768 ? this.width * 0.1 : -this.width * 0.1
+    );
 
     const tl = gsap.timeline({
-      scrollTrigger: { trigger: container, pin: true, scrub: true },
+      scrollTrigger: {
+        trigger: container,
+        pin: true,
+        scrub: true,
+        invalidateOnRefresh: true,
+      },
     });
 
     tl.to(container, {
       ease: 'none',
-      x: () => -(this.hozizontalScrollX + this.width * 0.1),
+      x: () => -this.hozizontalScrollX,
     })
       .to(pageTile, { x: -100 }, 0)
       .to(progressBar, { x: 0 }, 0);
@@ -122,15 +137,25 @@ export default class Scene {
       this.width = window.innerWidth;
       this.height = window.innerHeight;
 
+      const fov =
+        2 * Math.atan(this.height / 2 / this.perspective) * (180 / Math.PI);
+
       this.camera.aspect = this.width / this.height;
+
+      this.camera.fov = fov;
       this.camera.updateProjectionMatrix();
 
       this.renderer.setSize(this.width, this.height);
       this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-      this.hozizontalScrollX = this.tilesDom.reduce((acc, curr) => {
-        return acc + curr.offsetWidth;
-      }, 0);
+      this.hozizontalScrollX = this.tilesDom.reduce(
+        (acc, curr) => {
+          return acc + curr.offsetWidth;
+        },
+        this.width > 768 ? this.width * 0.1 : -this.width * 0.1
+      );
+
+      ScrollTrigger.refresh();
 
       for (const tile of this.tiles) {
         tile.onResize();
