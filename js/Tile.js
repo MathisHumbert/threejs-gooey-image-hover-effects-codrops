@@ -32,6 +32,7 @@ export default class Tile {
     this.mouse = new THREE.Vector2(0, 0);
     this.hover = 0;
     this.delta = 0;
+    this.isHover = false;
     this.isZoomed = false;
 
     this.initTile();
@@ -83,9 +84,11 @@ export default class Tile {
 
     this.mesh.position.x = this.offset.x;
 
+    const delta = this.delta > 40 ? 1 : this.delta;
+
     gsap.to(this.mesh.scale, {
-      x: this.sizes.x - this.delta,
-      y: this.sizes.y - this.delta,
+      x: this.sizes.x - delta,
+      y: this.sizes.y - delta,
       duration: 0.3,
     });
   }
@@ -118,6 +121,8 @@ export default class Tile {
   onScroll({ scroll, previousScroll }) {
     this.delta = Math.abs(scroll - previousScroll);
 
+    if (this.isZoomed) return;
+
     this.setPosition();
   }
 
@@ -135,7 +140,7 @@ export default class Tile {
       gsap.to(this.mouse, {
         x: (e.clientX / window.innerWidth) * 2 - 1,
         y: -(e.clientY / window.innerHeight) * 2 + 1,
-        duration: 1,
+        duration: 0.75,
       });
     });
   }
@@ -153,11 +158,13 @@ export default class Tile {
       );
 
       gsap.to(this.material.uniforms.uHover, { value: 1 });
+      this.isHover = true;
     });
 
     this.domLink.addEventListener('mouseleave', () => {
       this.hover = 0;
       gsap.to(this.material.uniforms.uHover, { value: 0 });
+      this.isHover = false;
     });
   }
 
@@ -176,6 +183,9 @@ export default class Tile {
   }
 
   zoomIn() {
+    const topTile = this.domElTitle[0].innerText;
+    const bottomTile = this.domElTitle[1].innerText;
+
     const uAlphaMaterial = this.tilesMaterial
       .filter((_, i) => i !== this.tileIndex)
       .map((material) => material.uniforms.uAlpha);
@@ -183,7 +193,7 @@ export default class Tile {
     const tl = gsap.timeline({
       onStart: () => {
         this.lenis.stop();
-        this.detail.showDetail();
+        this.detail.showDetail(topTile, bottomTile);
         this.isZoomed = true;
         this.domContent.classList.add('hide');
       },
@@ -277,8 +287,8 @@ export default class Tile {
   }
 
   update() {
-    // if (this.hover) {
-    this.material.uniforms.uTime.value += 0.01;
-    // }
+    if (this.hover) {
+      this.material.uniforms.uTime.value += 0.01;
+    }
   }
 }

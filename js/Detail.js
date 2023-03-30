@@ -33,8 +33,11 @@ export default class Detail {
     });
   }
 
-  showDetail() {
+  showDetail(topTitle, bottomTile) {
     const tl = gsap.timeline();
+
+    this.titleDom[0].innerHTML = topTitle;
+    this.titleDom[1].innerHTML = bottomTile;
 
     tl.to(this.progressDom, { opacity: 0, ease: 'power2.inOut' })
       .to(
