@@ -10,6 +10,7 @@ uniform vec2 uRes;
 uniform float uHover;
 uniform sampler2D uShape;
 uniform float uAlpha;
+uniform float uZoomed;
 
 varying vec2 vUv;
 
@@ -55,10 +56,11 @@ void main(){
 	imageHoverUv += vec2(0.5);
 
 	// img
-	vec4 image = texture2D(uImage, imageUv + mouse * 0.05 * uHover);
-	vec4 imageHover = texture2D(uImageHover, imageHoverUv  + mouse * 0.5 * uHover);
+	vec4 image = texture2D(uImage, imageUv + mouse * 0.05 * uHover );
+	vec4 imageHover = texture2D(uImageHover, imageHoverUv  + mouse * 0.5 * uHover );
 
-	vec4 finalImage = mix(image, imageHover, finalMask);
+		vec4 finalImage = mix(image, imageHover, finalMask + uZoomed);
+
 
 	gl_FragColor = vec4(finalImage.rgb, uAlpha);
 }

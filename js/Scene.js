@@ -23,11 +23,13 @@ const shaders = [
 ];
 
 export default class Scene {
-  constructor(container) {
+  constructor(container, textures) {
+    this.textures = textures;
     this.container = container;
     [...this.tilesDom] = document.querySelectorAll('.slideshow__list__element');
 
     this.scroll = 0;
+    this.scrollInit = false;
 
     this.start();
   }
@@ -57,7 +59,6 @@ export default class Scene {
     this.initScroll();
     this.initTiles();
     this.initScrollAnimation();
-    this.onScroll();
     this.onResize();
     this.update();
   }
@@ -82,14 +83,18 @@ export default class Scene {
       // duration: 2,
     });
 
-    this.lenis = lenis;
-
     function raf(time) {
       lenis.raf(time);
       requestAnimationFrame(raf);
     }
 
     requestAnimationFrame(raf);
+
+    lenis.scrollTo(0);
+
+    this.lenis = lenis;
+
+    this.onScroll();
   }
 
   initTiles() {
@@ -97,11 +102,6 @@ export default class Scene {
       (el, i) => new Tile(el, this, i, shaders[i])
     );
   }
-
-  // hideTiles(index){
-  //   for (const tile of this.tiles) {
-  //     tile.hide();
-  //   }  }
 
   initScrollAnimation() {
     const container = document.querySelector('.slideshow__container');

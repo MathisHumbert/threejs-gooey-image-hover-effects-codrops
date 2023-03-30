@@ -7,6 +7,7 @@ uniform sampler2D uImageHover;
 uniform float uTime;
 uniform float uHover;
 uniform float uAlpha;
+uniform float uZoomed;
 
 varying vec2 vUv;
 
@@ -29,7 +30,7 @@ void main(){
 	vec4 image = texture2D(uImage, vUv + vec2(nc + nh) * uHover);
 	vec4 imageHover = texture2D(uImageHover, vUv + vec2(nc + nh) * uHover);
 
-	vec4 finalImage = mix(image, imageHover, clamp(nh + uHover, 0., 1.));
+	vec4 finalImage = mix(image, imageHover, clamp(nh + uHover + uZoomed, 0., 1.));
 
 	gl_FragColor = vec4(finalImage.rgb, uAlpha);
 }

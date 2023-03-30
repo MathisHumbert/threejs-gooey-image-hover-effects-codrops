@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import gsap from 'gsap';
 
-import testShader from '../glsl/shader.glsl';
 import vertex from '../glsl/vertex.glsl';
 
 export default class Tile {
@@ -9,6 +8,9 @@ export default class Tile {
     this.domEl = el;
     this.domElTitle = el.querySelectorAll('.tile__title span span');
     this.domElCta = el.querySelectorAll('.tile__cta span span');
+    this.detailDom = document.querySelector('.detail');
+    this.domButton = document.querySelector('.close__detail');
+    this.domContent = document.querySelector('.content');
 
     this.detail = scene.detail;
     this.scene = scene.scene;
@@ -20,11 +22,10 @@ export default class Tile {
 
     this.domImage = this.domEl.querySelector('.tile__image');
     this.domLink = this.domEl.querySelector('a');
-    this.loader = new THREE.TextureLoader();
 
-    this.image = this.loader.load(this.domImage.dataset.src);
-    this.hoverImage = this.loader.load(this.domImage.dataset.hover);
-    this.shape = this.loader.load('shape.jpg');
+    this.image = scene.textures[this.domImage.dataset.src];
+    this.hoverImage = scene.textures[this.domImage.dataset.hover];
+    this.shape = scene.textures['shape.jpg'];
 
     this.sizes = new THREE.Vector2(0, 0);
     this.offset = new THREE.Vector2(0, 0);
@@ -164,11 +165,13 @@ export default class Tile {
     this.domLink.addEventListener('click', (e) => {
       e.preventDefault();
 
-      if (this.isZoomed) {
-        this.zoomOut();
-      } else {
-        this.zoomIn();
-      }
+      if (this.isZoomed) return;
+
+      this.zoomIn();
+    });
+
+    this.domButton.addEventListener('click', () => {
+      this.zoomOut();
     });
   }
 
@@ -180,21 +183,22 @@ export default class Tile {
     const tl = gsap.timeline({
       onStart: () => {
         this.lenis.stop();
-        this.detail.hideDetail();
+        this.detail.showDetail();
         this.isZoomed = true;
+        this.domContent.classList.add('hide');
       },
       onComplete: () => {
         this.material.uniforms.uZoomed.value = 1;
       },
     });
 
-    tl.to(this.tilesDom, { opacity: 0, ease: 'Power3.easeIn' }, 0)
-      .to(uAlphaMaterial, { value: 0, ease: 'Power3.easeIn' }, 0)
+    tl.to(this.tilesDom, { opacity: 0, ease: 'power2.in' }, 0)
+      .to(uAlphaMaterial, { value: 0, ease: 'power2.in' }, 0)
       .to(
         [this.domElTitle, this.domElCta],
         {
           yPercent: 110,
-          ease: 'Expo.easeInOut',
+          ease: 'expo.inOut',
           duration: 1,
           stagger: 0.1,
         },
@@ -206,18 +210,71 @@ export default class Tile {
           window.innerWidth * 0.05 -
           this.sizes.x * 0.95,
         y: -20,
+        ease: 'expo.inOut',
+        duration: 1,
       })
       .to(
         this.mesh.scale,
         {
           x: window.innerWidth * 0.44,
           y: window.innerHeight - 140,
+          ease: 'expo.inOut',
+          duration: 1,
         },
         '<'
       );
   }
 
-  zoomOut() {}
+  zoomOut() {
+    const uAlphaMaterial = this.tilesMaterial
+      .filter((_, i) => i !== this.tileIndex)
+      .map((material) => material.uniforms.uAlpha);
+    const tl = gsap.timeline({
+      onStart: () => {
+        this.detail.hideDetail();
+      },
+      onComplete: () => {
+        this.lenis.start();
+        this.material.uniforms.uZoomed.value = 0;
+        this.isZoomed = false;
+        this.detailDom.classList.remove('visible');
+        this.domContent.classList.remove('hide');
+      },
+    });
+
+    tl.to(
+      this.mesh.position,
+      {
+        x: this.offset.x,
+        y: this.offset.y,
+        ease: 'expo.inOut',
+        duration: 1,
+      },
+      1
+    )
+      .to(
+        this.mesh.scale,
+        {
+          x: this.sizes.x,
+          y: this.sizes.y,
+          ease: 'expo.inOut',
+          duration: 1,
+        },
+        '<'
+      )
+      .to(
+        [this.domElTitle, this.domElCta],
+        {
+          yPercent: 0,
+          ease: 'expo.inOut',
+          duration: 1,
+          stagger: 0.1,
+        },
+        '<'
+      )
+      .to(uAlphaMaterial, { value: 1, ease: 'power2.in' }, '-=0.5')
+      .to(this.tilesDom, { opacity: 1, ease: 'power2.in' }, '<');
+  }
 
   update() {
     // if (this.hover) {
